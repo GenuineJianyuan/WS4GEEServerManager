@@ -47,7 +47,7 @@ def test(request):
     else:
         boundary=general_utils.readLocalFileToStr(os.path.join(BASE_DIR, 'static',uploadBoundaryContent))
 
-    print(serviceType,datasetName,stackingMethod,start,end,options,dataAbstract,keywords,uploadType,uploadBoundaryContent,bands)
+    # print(serviceType,datasetName,stackingMethod,start,end,options,dataAbstract,keywords,uploadType,uploadBoundaryContent,bands)
     return generate_dynamic_service(request)
 
 def test_service(request):
@@ -171,9 +171,10 @@ def generate_dynamic_service(request):
     uploadType = request.POST.get('uploadType', 0)
     uploadBoundaryName=request.POST.get('uploadBoundaryName', 0)
     uploadBoundaryContent = request.POST.get('uploadBoundaryContent', 0)
-    bands = request.POST.get('bands', 0)
+    bandsName = request.POST.get('bands', 0) # e.g. B1;B2;B3
+    
     noCloud,byYear,byMonth = 0,0,0
-    print(options)
+
     boundary,boundaryName='',uploadBoundaryName
     if ('noCloud' in options):
         noCloud=1
@@ -186,6 +187,9 @@ def generate_dynamic_service(request):
     else:
         boundary=general_utils.readLocalFileToStr(os.path.join(BASE_DIR, 'static',uploadBoundaryContent))
 
+    bands=str(bandsName).split(';') 
+    keywords=str(keywords).split(';')
+    print(dataAbstract)
     # datasetInfo=""
     datasetInfo = gee_utils.getTargetDatasetInfo(
         general_utils.matchDatasetSnippetName(datasetName), start, end, boundary)
@@ -195,7 +199,7 @@ def generate_dynamic_service(request):
     generate_name=boundaryName+requestUuid
     newSearchRequest = SearchRequest(uuid=requestUuid, dataset_name=datasetName, service_type=serviceType,
                                      stacking_method=stackingMethod, start=start, end=end, boundary=boundary,
-                                     boundary_name=boundaryName, no_cloud=int(noCloud), by_year=int(byYear), 
+                                     boundary_name=boundaryName, abstract=dataAbstract,keywords=keywords,no_cloud=int(noCloud), by_year=int(byYear), 
                                      by_month=int(byMonth), dataset_info=datasetInfo, bands=bands, generate_name=generate_name,
                                      xmin=envelope[0],ymin=envelope[1],xmax=envelope[2],ymax=envelope[3])
     newSearchRequest.save()
@@ -204,8 +208,9 @@ def generate_dynamic_service(request):
         WCSNames = []
         if int(byMonth) == 1:  # generate by month
             periods = general_utils.split_time_by_month(start, end)
-            bandsName = str(bands).replace('[', '').replace(
-                ']', '').replace(',', '').replace('\'', "")
+            # bandsName = str(bands).replace('[', '').replace(
+            #     ']', '').replace(',', '').replace('\'', "")
+            bandsName=str(bandsName).replace(';', '_')
             for period in periods:
                 # store each dynamic WCS,record requestUuid and this Uuid, start, end, method (mean, max or min)
                 curWCSUuid = general_utils.matchDatasetName(datasetName)+'_'+boundaryName+'_'+period['start_year']+period['start_month']+period[
@@ -277,9 +282,9 @@ def get_coverage_service(request, dataset, type):
                     curCoverageSummary = {}
                     curCoverageSummary['title'] = curWCS.uuid
                     curCoverageSummary['abstract'] = 'Stacking method: '+method+'; no cloud:'+str(
-                        bool(noCloud))+'; start time: '+curWCS.start+'; end time: '+curWCS.end
+                        bool(noCloud))+'; start time: '+curWCS.start+'; end time: '+curWCS.end+";"+curSearchRequest.abstract
                     curCoverageSummary['keywords'] = [
-                        datasetName, "WCS", "GeoTIFF"]
+                        datasetName, "WCS", "GeoTIFF"]+eval(curSearchRequest.keywords)
                     curCoverageSummary['extent'] = extent
                     curCoverageSummary['identifier'] = curWCS.uuid
                     content["Contents"].append(curCoverageSummary)
@@ -329,9 +334,9 @@ def get_coverage_service(request, dataset, type):
             content = {}
             content["title"] = identifier
             content["abstract"] = "Generate by images(id):" + \
-                ",".join(usingImages)
+                ";".join(usingImages)+';'+curSearchRequest.abstract
             if "keywords" in (datasetInfo['properties'].keys()):
-                content['keywords'] = datasetInfo['properties']['keywords']
+                content['keywords'] = datasetInfo['properties']['keywords']+eval(curSearchRequest.keywords)
             else:
                 content['keywords'] = ["WS4GEE", "GeoTIFF", "WCS"]
             content['identifier'] = identifier

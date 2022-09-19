@@ -120,6 +120,8 @@ class SearchRequest(models.Model):
     boundary = models.TextField(blank=True, null=True)
     boundary_name = models.CharField(max_length=255, blank=True, null=True)
     bands = models.CharField(max_length=255, blank=True, null=True)
+    keywords = models.CharField(max_length=255, blank=True, null=True)
+    abstract = models.CharField(max_length=255, blank=True, null=True)
     no_cloud = models.IntegerField(blank=True, null=True)
     by_year = models.IntegerField(blank=True, null=True)
     by_month = models.IntegerField(blank=True, null=True)
