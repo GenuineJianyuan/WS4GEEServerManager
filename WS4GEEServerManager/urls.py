@@ -34,5 +34,7 @@ urlpatterns = [
     path('ws4gee/register',views.register_wps),
     path('ws4gee/test',views.test_service),
     path('ws4gee/setGroupName',views.set_group_name),
-    path('ws4gee/generateCoverageRequest',views.generate_coverage_request)
+    path('ws4gee/generateCoverageRequest',views.generate_coverage_request),
+    path('ws4gee/tutorial',views.get_file),
+    path('ws4gee/experimentalData',views.get_zip_file)
 ]

@@ -1,5 +1,7 @@
 from ast import Param
 from email.policy import default
+from fileinput import filename
+from io import BytesIO
 from tabnanny import check
 from time import sleep
 from urllib.error import HTTPError
@@ -635,3 +637,44 @@ def get_WPS_List(request):
     responseDir['code'] = 0
     responseDir['data'] =serviceList
     return HttpResponse(str(responseDir))
+
+def get_file(request):
+    from django.http import StreamingHttpResponse
+    def read_file(file_name,chunk_size=512):
+        with open(file_name,"rb") as f:
+            while True:
+                c=f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+
+    file=request.GET.get('fileName')
+    fileName=""
+    if (file=='tutorial'):
+        fileName='Tutorial for WS4GEEClient.docx'
+    elif (file=='instruction'):
+        fileName="WS4GEEServer Instruction.docx"
+    filePath=os.path.join(BASE_DIR,'static',fileName)
+    response=StreamingHttpResponse(read_file(filePath))
+    response["Content-Type"]="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    response["Content-Disposition"]="attachment; filename={0}".format(fileName)
+    response["Access-Control-Expose-Headers"]="Content-Disposition"
+    return response
+
+def get_zip_file(request):
+    from django.http import StreamingHttpResponse
+    def read_file(file_name,chunk_size=512):
+        with open(file_name,"rb") as f:
+            while True:
+                c=f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+    filePath=os.path.join(BASE_DIR,'static',"Experiment Data.zip")
+    response=StreamingHttpResponse(read_file(filePath))
+    response["Content-Type"]="application/x-zip-compressed"
+    response["Content-Disposition"]="attachment; filename={0}".format("Experiment Data.zip")
+    response["Access-Control-Expose-Headers"]="Content-Disposition"
+    return response
