@@ -158,7 +158,7 @@ def generateUrlForTargetImageWithBounds(scale,curImage,tempImageName,bounds):
     region = ee.FeatureCollection(bounds["features"]).geometry()
     curImage=ee.Image(curImage)
     export_gee_image(curImage,tempImageName,scale,region)
-    download_blob("image_bucket_leismars", tempImageName+".tif", r"D:\\development\\apache-tomcat-9.0.45\\webapps\\examples\\temp\\"+tempImageName+".tif")
+    download_blob("image_bucket_leismars", tempImageName+".tif", r"C:\\Users\\Administrator\\Desktop\\apache-tomcat-9.0.45\\webapps\\examples\\temp\\"+tempImageName+".tif")
     return "http://127.0.0.1:8080/examples/temp/"+tempImageName+".tif"
 
 def generateUrlForVectorOutput(vector,fileName):
@@ -170,7 +170,7 @@ def generateUrlForVectorOutput(vector,fileName):
     print(url)
     curLog=DownloadingLog(uuid=general_utils.getuuid12(),image_uuid=fileName,status="COMPLETED IN THE CLOUD")
     curLog.save()
-    general_utils.readFileFromUrl(url,fileName+".geojson",r"D:\\development\\apache-tomcat-9.0.45\\webapps\\examples\\temp\\")
+    general_utils.readFileFromUrl(url,fileName+".geojson",r"C:\\Users\\Administrator\\Desktop\\apache-tomcat-9.0.45\\webapps\\examples\\temp\\")
     curLog=DownloadingLog(uuid=general_utils.getuuid12(),image_uuid=fileName,status="DOWNLOADED")
     curLog.save()
     return "http://127.0.0.1:8080/examples/temp/"+fileName+".geojson"
