@@ -150,7 +150,7 @@ def generateUrlForTargetImage(scale,curImage,tempImageName,minX,minY,maxX,maxY):
     curImage=ee.Image(curImage)
     region=ee.Geometry.Rectangle([minX,minY,maxX,maxY])
     export_gee_image(curImage,tempImageName,scale,region)
-    download_blob("image_bucket_leismars", tempImageName+".tif", r"D:\\development\\apache-tomcat-9.0.45\\webapps\\examples\\temp\\"+tempImageName+".tif")
+    download_blob("image_bucket_leismars", tempImageName+".tif", r"C:\\Users\\Administrator\\Desktop\\apache-tomcat-9.0.45\\webapps\\examples\\temp\\"+tempImageName+".tif")
     return "http://127.0.0.1:8080/examples/temp/"+tempImageName+".tif"
 
 
