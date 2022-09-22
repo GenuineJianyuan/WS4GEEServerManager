@@ -94,7 +94,7 @@ def get_boundary_files(request):
             return HttpResponse('ok')
 
 def get_xmlTemplate_list(request):
-    xmlList=["buffer.xml","FVC.xml"]
+    xmlList=["test_buffer.xml","test_FVC.xml"]
     responseDir = {}
     responseDir['code'] = 0
     responseDir['data'] = xmlList
@@ -104,7 +104,7 @@ def get_xmlTemplate(request):
     import time
     curId = request.GET.get("curId")
     docStr = general_utils.readLocalFileToStr(
-        os.path.join(BASE_DIR, 'static',curId))
+        os.path.join(BASE_DIR, 'static/testing template',curId))
     return HttpResponse(docStr, "text/xml")
 
 def register_wps(request):
@@ -644,7 +644,7 @@ def get_file(request):
         fileName='Tutorial for WS4GEEClient.docx'
     elif (file=='instruction'):
         fileName="WS4GEEServer Instruction.docx"
-    filePath=os.path.join(BASE_DIR,'static',fileName)
+    filePath=os.path.join(BASE_DIR,'static/tutorial',fileName)
     response=StreamingHttpResponse(read_file(filePath))
     response["Content-Type"]="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     response["Content-Disposition"]="attachment; filename={0}".format(fileName)
