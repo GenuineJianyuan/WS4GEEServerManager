@@ -171,10 +171,9 @@ def generateUrlForVectorOutput(vector,fileName):
     curLog=DownloadingLog(uuid=general_utils.getuuid12(),image_uuid=fileName,status="READY")
     curLog.save()
     url=ee.FeatureCollection(vector).getDownloadURL(filetype="geojson",filename=fileName)
-    print(url)
     curLog=DownloadingLog(uuid=general_utils.getuuid12(),image_uuid=fileName,status="COMPLETED IN THE CLOUD")
     curLog.save()
-    general_utils.readFileFromUrl(url,vectorSaveName,os.path.join(FILE_SAVE_PATH,vectorSaveName))
+    general_utils.readFileFromUrl(url,vectorSaveName,FILE_SAVE_PATH)
     curLog=DownloadingLog(uuid=general_utils.getuuid12(),image_uuid=fileName,status="DOWNLOADED")
     curLog.save()
     return File_ACCESS_PATH+vectorSaveName
