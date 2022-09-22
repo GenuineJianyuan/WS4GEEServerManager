@@ -16,45 +16,6 @@ import json
 from WS4GEEServerManager.settings import BASE_DIR,PROJECT_ROOT_URL,File_ACCESS_PATH
 
 
-def test(request):
-    serviceType = request.POST.get('serviceType', 0)
-    datasetName = request.POST.get('datasetName', 0)
-    stackingMethod = request.POST.get('stackingMethod', 0)
-    start = request.POST.get('start', 0)
-    end = request.POST.get('end', 0)
-    options=str(request.POST.get('options', 0)).split(',')
-    dataAbstract = request.POST.get('dataAbstract', 0)
-    keywords = request.POST.get('keywords', 0)
-    uploadType = request.POST.get('uploadType', 0)
-    uploadBoundaryName=request.POST.get('uploadBoundaryName', 0)
-    uploadBoundaryContent = request.POST.get('uploadBoundaryContent', 0)
-    bands = request.POST.get('bands', 0)
-    noCloud,byYear,byMonth = 0,0,0
-    boundary,boundaryName='',uploadBoundaryName
-    if ('noCloud' in options):
-        noCloud=1
-    elif ('byMonth' in options):
-        byMonth=1
-    elif ('byYear' in options):
-        byYear=1
-    
-    if (int(uploadType)==2):
-        boundary=general_utils.readStrFromUrl(uploadBoundaryContent)
-    else:
-        boundary=general_utils.readLocalFileToStr(os.path.join(BASE_DIR, 'static',uploadBoundaryContent))
-
-    # print(serviceType,datasetName,stackingMethod,start,end,options,dataAbstract,keywords,uploadType,uploadBoundaryContent,bands)
-    return generate_dynamic_service(request)
-
-def test_service(request):
-    # rawXML=""
-    # if ((request.content_type!='application/x-www-form-urlencoded') & (request.content_type!='form-data')):
-    #     rawXML=request.body
-    # else:
-    #     rawXML=request.POST.get('xml',0)
-        
-    return get_process_service(request)
-
 def set_group_name(request):
     oldName=request.POST.get('groupName',0)
     newName=request.POST.get('newGroupName',0)
