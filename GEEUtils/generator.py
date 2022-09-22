@@ -4,6 +4,7 @@ from GEEUtils.runtime import json,os
 from Utils.general_utils import *
 from xml.dom.minidom import Document
 import time
+from WS4GEEServerManager.settings import PROJECT_ROOT_URL
 
 # def test(request):
 #     curSearchRequest=SearchRequest.objects.get(uuid='492fdd01-a6b6-4fa6-aca2-25a1235a35e9')
@@ -355,11 +356,11 @@ def generateExecuteResponse(content):
         "xmlns:ows":"http://www.opengis.net/ows/1.1",
         "xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance",
         "xsi:schemaLocation":"http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsGetCapabilities_response.xsd",
-        "serviceInstance":"http://127.0.0.1:8000/ws4gee/wps?request=GetCapabilities&service=WPS",
+        "serviceInstance":PROJECT_ROOT_URL+"/ws4gee/wps?request=GetCapabilities&service=WPS",
         "service":"WPS",
         "version":"1.0.0",
         "xml:lang":"en-US",
-        "statusLocation":"http://127.0.0.1:8000/ws4gee/wps/RetrieveResults?id="+content["statusUuid"]
+        "statusLocation":PROJECT_ROOT_URL+"/ws4gee/wps/RetrieveResults?id="+content["statusUuid"]
         }
     setAttributes(DOCUMENT,namespace)
         ###### add  attributes ..........
@@ -383,11 +384,11 @@ def generateExecuteStatus(content):
         "xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance",
         "xmlns:ows":"http://www.opengis.net/ows/1.1",   
         "xsi:schemaLocation":"http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsGetCapabilities_response.xsd",
-        "serviceInstance":"http://127.0.0.1:8000/ws4gee/wps?request=GetCapabilities&service=WPS",
+        "serviceInstance":PROJECT_ROOT_URL+"/ws4gee/wps?request=GetCapabilities&service=WPS",
         "service":"WPS",
         "version":"1.0.0",
         "xml:lang":"en-US",
-        "statusLocation":"http://127.0.0.1:8000/ws4gee/wps/RetrieveResults?id="+content["statusUuid"]
+        "statusLocation":PROJECT_ROOT_URL+"/ws4gee/wps/RetrieveResults?id="+content["statusUuid"]
         }
     setAttributes(DOCUMENT,namespace)
         ###### add  attributes ..........
