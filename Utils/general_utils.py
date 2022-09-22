@@ -13,7 +13,6 @@ def getuuid12():
 def getuuid():
     return str(uuid.uuid4())
 
-# Currently just mention about a simple 
 def split_time_by_month(start,end):
     def lastDayInMonth(year,month):
         if month in [1,3,5,7,8,10,12]:
@@ -33,7 +32,7 @@ def split_time_by_month(start,end):
     end_year,end_month,end_day=fmt_list2[0],fmt_list2[1],fmt_list2[2]
     periods=[]
     cur_year,cur_month,cur_day=start_year,start_month,start_day
-    while (int(cur_year)<=int(end_year)) and (int(cur_month)<=int(end_month)):
+    while (int(cur_year)<int(end_year)) or ((int(cur_year)==int(end_year)) and (int(cur_month)<=int(end_month))):
         period={}
         cur_lastday=-1
         period["start_year"],period["start_month"],period["start_day"]=cur_year,cur_month,cur_day
@@ -44,7 +43,7 @@ def split_time_by_month(start,end):
         period["end_year"],period["end_month"],period["end_day"]=cur_year,cur_month,cur_lastday
         periods.append(period)
         
-        if cur_month==12:
+        if cur_month==str(12):
             cur_day='01'
             cur_month='01' #next month
             cur_year=str(int(cur_year)+1)
