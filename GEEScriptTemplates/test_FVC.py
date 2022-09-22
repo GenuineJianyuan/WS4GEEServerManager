@@ -1,10 +1,4 @@
 import ee
-import os
-import json
-import time
-
-# os.environ['HTTP_PROXY']="http://127.0.0.1:7890"
-# os.environ['HTTPS_PROXY']='http://127.0.0.1:7890'
 
 ee.Initialize()
 
@@ -38,9 +32,6 @@ def calFVC(BestVI,region,scale):
     # print(num)
     min = ee.Number(num.get("nd_p5"))
     max = ee.Number(num.get("nd_p95"))
-    # print(top_min)
-    # print(top_max)
-    # quantile and combine
     greaterPart = BestVI.gt(max)
     lessPart = BestVI.lt(min)
     middlePart =ee.Image(1).subtract(greaterPart).subtract(lessPart)
