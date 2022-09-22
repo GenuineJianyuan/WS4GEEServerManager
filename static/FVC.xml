@@ -10,11 +10,11 @@
         </wps:Input>
         <wps:Input>
             <ows:Identifier>export_bounds</ows:Identifier>
-            <wps:Reference xlink:href="http://127.0.0.1:8080/examples/temp/WuhanBoundary2.json" mimeType="text/plain"/>
+            <wps:Reference xlink:href="http://43.154.247.161:8080/examples/temp/WuhanBoundary2.json" mimeType="text/plain"/>
          </wps:Input>
          <wps:Input>
             <ows:Identifier>bounds</ows:Identifier>
-            <wps:Reference xlink:href="http://127.0.0.1:8080/examples/temp/WuhanBoundary2.json" mimeType="text/plain"/>
+            <wps:Reference xlink:href="http://43.154.247.161:8080/examples/temp/WuhanBoundary2.json" mimeType="text/plain"/>
         </wps:Input>
         <wps:Input>
             <ows:Identifier>dataset</ows:Identifier>

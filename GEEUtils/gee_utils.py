@@ -2,6 +2,7 @@ from GEEUtils.runtime import ee,json,os
 from google.cloud import storage
 from Model.models import DownloadingLog
 import time
+from WS4GEEServerManager.settings import FILE_SAVE_PATH,File_ACCESS_PATH
 
 from Utils import general_utils
 
@@ -149,31 +150,34 @@ def export_gee_image(image,name,scale,region):
 def generateUrlForTargetImage(scale,curImage,tempImageName,minX,minY,maxX,maxY):
     curImage=ee.Image(curImage)
     region=ee.Geometry.Rectangle([minX,minY,maxX,maxY])
-    export_gee_image(curImage,tempImageName,scale,region)
-    download_blob("image_bucket_leismars", tempImageName+".tif", r"C:\\Users\\Administrator\\Desktop\\apache-tomcat-9.0.45\\webapps\\examples\\temp\\"+tempImageName+".tif")
-    return "http://127.0.0.1:8080/examples/temp/"+tempImageName+".tif"
+    rasterSaveName=tempImageName+".tif"
+    export_gee_image(curImage,tempImageName,scale,region) 
+    download_blob("image_bucket_leismars", rasterSaveName, os.path.join(FILE_SAVE_PATH,rasterSaveName))
+    return File_ACCESS_PATH+rasterSaveName
 
 
 def generateUrlForTargetImageWithBounds(scale,curImage,tempImageName,bounds):
     region = ee.FeatureCollection(bounds["features"]).geometry()
     curImage=ee.Image(curImage)
+    rasterSaveName=tempImageName+".tif"
     export_gee_image(curImage,tempImageName,scale,region)
-    download_blob("image_bucket_leismars", tempImageName+".tif", r"C:\\Users\\Administrator\\Desktop\\apache-tomcat-9.0.45\\webapps\\examples\\temp\\"+tempImageName+".tif")
-    return "http://127.0.0.1:8080/examples/temp/"+tempImageName+".tif"
+    download_blob("image_bucket_leismars", rasterSaveName, os.path.join(FILE_SAVE_PATH,rasterSaveName))
+    return File_ACCESS_PATH+rasterSaveName
 
 def generateUrlForVectorOutput(vector,fileName):
     # suppose the size of the output vector is small, use getDownloadURL (faster), or 
     # the google cloud should be used (slower)
+    vectorSaveName=fileName+".geojson"
     curLog=DownloadingLog(uuid=general_utils.getuuid12(),image_uuid=fileName,status="READY")
     curLog.save()
     url=ee.FeatureCollection(vector).getDownloadURL(filetype="geojson",filename=fileName)
     print(url)
     curLog=DownloadingLog(uuid=general_utils.getuuid12(),image_uuid=fileName,status="COMPLETED IN THE CLOUD")
     curLog.save()
-    general_utils.readFileFromUrl(url,fileName+".geojson",r"C:\\Users\\Administrator\\Desktop\\apache-tomcat-9.0.45\\webapps\\examples\\temp\\")
+    general_utils.readFileFromUrl(url,vectorSaveName,os.path.join(FILE_SAVE_PATH,vectorSaveName))
     curLog=DownloadingLog(uuid=general_utils.getuuid12(),image_uuid=fileName,status="DOWNLOADED")
     curLog.save()
-    return "http://127.0.0.1:8080/examples/temp/"+fileName+".geojson"
+    return File_ACCESS_PATH+vectorSaveName
 
 def getBoundaryBox(geojson):
     fc=generateEEFeaturesFromJSON(geojson)
