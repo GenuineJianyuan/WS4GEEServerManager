@@ -130,7 +130,7 @@ def generate_dynamic_service(request):
     uploadBoundaryContent = request.POST.get('uploadBoundaryContent', 0)
     bandsName = request.POST.get('bands', 0) # e.g. B1;B2;B3
     
-    noCloud,byYear,byMonth = 0,0,0
+    noCloud,byYear,byMonth,byCustom = 0,0,0,0
 
     boundary,boundaryName='',uploadBoundaryName
     if ('noCloud' in options):
@@ -139,6 +139,8 @@ def generate_dynamic_service(request):
         byMonth=1
     if ('byYear' in options):
         byYear=1
+    if ('byCustom' in options):
+        byCustom=1
     if (int(uploadType)==2):
         boundary=general_utils.readStrFromUrl(uploadBoundaryContent)
     else:
@@ -163,22 +165,24 @@ def generate_dynamic_service(request):
 
     if (serviceType == 'WCS'):
         WCSNames = []
+        periods=[]
         if int(byMonth) == 1:  # generate by month
             periods = general_utils.split_time_by_month(start, end)
-            # bandsName = str(bands).replace('[', '').replace(
-            #     ']', '').replace(',', '').replace('\'', "")
-            bandsName=str(bandsName).replace(';', '_')
-            for period in periods:
-                # store each dynamic WCS,record requestUuid and this Uuid, start, end, method (mean, max or min)
-                curWCSUuid = general_utils.matchDatasetName(datasetName)+'_'+boundaryName+'_'+period['start_year']+period['start_month']+period[
-                    'start_day']+'_'+period['end_year']+period['end_month']+period['end_day']+'_'+bandsName+'_'+general_utils.getuuid12()
-                WCSNames.append(curWCSUuid)
-                newDynamicWcs = DynamicWcs(uuid=curWCSUuid, req_uuid=requestUuid,
-                                           start=period['start_year']+'-' +
-                                           period['start_month'] +
-                                           '-'+period['start_day'],
-                                           end=period['end_year']+'-'+period['end_month']+'-'+period['end_day'])
-                newDynamicWcs.save()
+        elif int(byYear)==1:
+            periods=general_utils.split_time_by_year(start,end)
+        elif int(byCustom)==1:
+            periods=general_utils.split_time_by_custom(start,end)
+
+        bandsName=str(bandsName).replace(';', '_')
+        for period in periods:
+            # store each dynamic WCS,record requestUuid and this Uuid, start, end, method (mean, max or min)
+            curWCSUuid = general_utils.matchDatasetName(datasetName)+'_'+boundaryName+'_'+period['start_year']+period['start_month']+period[
+                'start_day']+'_'+period['end_year']+period['end_month']+period['end_day']+'_'+bandsName+'_'+general_utils.getuuid12()
+            WCSNames.append(curWCSUuid)
+            startTime,endTime=period['start_year']+'-' +period['start_month'] +'-'+period['start_day'],period['end_year']+'-'+period['end_month']+'-'+period['end_day']
+            newDynamicWcs = DynamicWcs(uuid=curWCSUuid, req_uuid=requestUuid, start=startTime, end=endTime)
+            newDynamicWcs.save()
+
         responseDir = {}
         responseDir['code'] = 0
         responseDir['data'] = {}
