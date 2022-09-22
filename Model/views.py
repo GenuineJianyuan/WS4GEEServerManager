@@ -661,7 +661,7 @@ def get_zip_file(request):
                     yield c
                 else:
                     break
-    filePath=os.path.join(BASE_DIR,'static',"Experiment Data.zip")
+    filePath=os.path.join(BASE_DIR,'static/tutorial',"Experiment Data.zip")
     response=StreamingHttpResponse(read_file(filePath))
     response["Content-Type"]="application/x-zip-compressed"
     response["Content-Disposition"]="attachment; filename={0}".format("Experiment Data.zip")
