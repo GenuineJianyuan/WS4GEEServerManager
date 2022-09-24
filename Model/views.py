@@ -449,13 +449,14 @@ def get_process_service(request):
             rawXML=request.POST.get('xml',0)
         
         # update: using post method to access describeProcess
-        if ("wps:DescribeProcess" in rawXML.lower()):
+        if ("wps:describeprocess" in rawXML.lower()):
             curParamsDir = parser.retrieve_attr(rawXML, "Execute")
             identifier= curParamsDir["identifier"]
             docStr=get_DescribeProcess_response(identifiers)
             return HttpResponse(docStr, "text/xml")
 
 
+        # otherwise this request is for "Execute"
         curParamsDir = parser.retrieve_attr(rawXML, "Execute")
         if ('error' in curParamsDir.keys()):
             return HttpResponse(curParamsDir['error'])
