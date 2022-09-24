@@ -16,7 +16,7 @@ import json
 from WS4GEEServerManager.settings import BASE_DIR,PROJECT_ROOT_URL,File_ACCESS_PATH
 
 def test(request):
-    url="http://43.154.247.161/:8080/examples/temp/test.tif"
+    url="http://43.154.247.161:8080/examples/temp/test.tif"
     result=parser.convert_by_ee_cloud_test(url, "tiff")
     return HttpResponse(result)
 
