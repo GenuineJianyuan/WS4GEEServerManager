@@ -53,10 +53,11 @@ def retrieve_attr(rawData,method):
             curOutputParam["mimeType"]=output.getAttribute("mimeType")
             curOutputParam["identifier"]=output.getElementsByTagName('ows:Identifier')[0].firstChild.data
             variables.append(curOutputParam)
+        params={"identifier":identifier,"variables":variables}
+        return params
     elif (method=="DescribeProcess"):
         identifier=root.getElementsByTagName('ows:Identifier')[0].firstChild.data
-    params={"identifier":identifier,"variables":variables}
-    return params
+        return {"identifier":identifier}
 
 def convert_to_ee_vector(content,type="geojson"):
     if (type=='geojson'):
