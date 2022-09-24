@@ -1,8 +1,10 @@
 from numpy import empty
-from GEEUtils.runtime import ee,json,os
 from GEEUtils import gee_utils
-from xml.dom.minidom import Document,parseString
-from Utils.general_utils import getXMLStrfromMinidom
+from xml.dom.minidom import parseString
+from Utils import general_utils
+from WS4GEEServerManager.settings import BASE_DIR
+import os
+
 
 def getServiceName(xmlDoc,serviceType):
     return
@@ -70,5 +72,24 @@ def convert_to_ee_image():
     return
 
 def convert_by_ee_cloud(url,type="tiff"):
-    # var img=ee.Image.loadGeoTIFF("gs://image_bucket_leismars/2010FVC.tif")
+    if (type=='tiff'):
+        fileName=general_utils.getuuid12()
+        fullFileName=fileName+".tif"
+        savePath=os.path.join(BASE_DIR,'temp')
+        saveAbsPath=os.path.join(savePath,fullFileName)
+        general_utils.readFileFromUrl(url,fileName,savePath)
+        eeCloudPath=gee_utils.upload_blob("image_bucket_leismars",saveAbsPath,fullFileName)
+        return gee_utils.generateEERasterFromCloud(eeCloudPath)
+    return
+
+def convert_by_ee_cloud_test(url,type="tiff"):
+    if (type=='tiff'):
+        fileName=general_utils.getuuid12()
+        fullFileName=fileName+".tif"
+        savePath=os.path.join(BASE_DIR,'temp')
+        saveAbsPath=os.path.join(savePath,fullFileName)
+        general_utils.readFileFromUrl(url,fileName,savePath)
+        eeCloudPath=gee_utils.upload_blob("image_bucket_leismars",saveAbsPath,fullFileName)
+        print(eeCloudPath)
+        return gee_utils.generateEERasterFromCloudTest(eeCloudPath)
     return

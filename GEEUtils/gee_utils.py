@@ -32,6 +32,14 @@ def generateEEFeaturesFromJSON(geojsonData):
         features = ee.FeatureCollection(geojson["features"])
     return features
 
+def generateEERasterFromCloud(eeCloudPath):
+    image=ee.Image.loadGeoTIFF(eeCloudPath)
+    return image
+
+def generateEERasterFromCloudTest(eeCloudPath):
+    image=ee.Image.loadGeoTIFF(eeCloudPath)
+    return image.getInfo()
+
 def getTargetDatasetInfo(datasetName,start,end,geojsonData):
     geojson=json.loads(geojsonData)
     features=None
@@ -93,6 +101,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
             source_file_name, destination_blob_name
         )
     )
+    return "gs://"+bucket_name+"/"+destination_blob_name
 
 def download_blob(bucket_name, source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""

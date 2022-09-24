@@ -15,6 +15,10 @@ import json
 
 from WS4GEEServerManager.settings import BASE_DIR,PROJECT_ROOT_URL,File_ACCESS_PATH
 
+def test(request):
+    url="http://43.154.247.161/:8080/examples/temp/test.tif"
+    result=parser.convert_by_ee_cloud_test(url, "tiff")
+    return HttpResponse(result)
 
 def set_group_name(request):
     oldName=request.POST.get('groupName',0)
@@ -473,7 +477,7 @@ def get_process_service(request):
                                 variable["value"])
                             paramsVariableList.append(parser.convert_to_ee_vector(
                                 geojsonData, "geojson"))  # value is a url
-                    elif curType == 'Raster':
+                    elif curType == 'Raster': # currently accept .tif as raster input
                         paramsVariableList.append(parser.convert_by_ee_cloud(
                             variable["value"], variable["mimeType"]))
         # asynchronous way should be tried to split the output xml and the result
