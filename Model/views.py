@@ -59,7 +59,7 @@ def get_boundary_files(request):
             return HttpResponse('ok')
 
 def get_xmlTemplate_list(request):
-    xmlList=["test_buffer.xml","test_FVC.xml"]
+    xmlList=["test_buffer.xml","test_FVC.xml","test_raster_add.xml"]
     responseDir = {}
     responseDir['code'] = 0
     responseDir['data'] = xmlList
@@ -526,8 +526,9 @@ def get_process_service(request):
 def check_coverage_status(request, uuid):
     list = DownloadingLog.objects.filter(
         image_uuid=uuid).order_by("create_time")
-    status = "Request "+list[len(list)-1].status
-    print(status)
+    if (len(list)>0):
+        status = "Request "+list[len(list)-1].status
+        print(status)
     if status == "":
         status == "Request Accepted"
     return HttpResponse(status)
@@ -539,7 +540,12 @@ def check_execute_status(request):
     curProcess = Process.objects.get(uuid=curStatus.process_uuid)
     list = DownloadingLog.objects.filter(
         image_uuid=curStatus.execution_uuid).order_by("create_time")
-    status = list[len(list)-1].status
+    length=len(list)
+    status=""
+    if (length>0):
+        status = list[length-1].status
+    else:
+        status=list[length].status
     content = {}
     content["statusUuid"] = curStatusUuid
     content["identifier"] = curProcess.name
