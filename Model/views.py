@@ -354,6 +354,11 @@ def get_coverage_service(request, dataset, type):
 # Generate WPS 1.0 services
 def get_process_service(request):
     def get_DescribeProcess_response(identifiers):
+        if (identifiers=='all'):
+                identifiers=get_all_identifiers_list()
+        else:
+            identifiers = str(request.GET.get('identifier')).split(';')
+            
         for identifier in identifiers:
             curContent = {}
             curProcess = Process.objects.get(name=identifier)
@@ -389,6 +394,12 @@ def get_process_service(request):
                 "DescribeProcess", content)
         return response
 
+    def get_all_identifiers_list():
+        identifier_list=[]
+        processes=Process.objects.all()
+        for process in processes:
+            identifier_list.append(process.name)
+        return identifier_list
 
     docStr = ""
     if request.method == 'GET':
@@ -418,7 +429,8 @@ def get_process_service(request):
         # WPS DescribeProcess
         elif (requestType == 'DescribeProcess'):
             content = []
-            identifiers = str(request.GET.get('identifier')).split(';')
+            identifiers=str(request.GET.get('identifier'))
+            
             docPath = None
             # Firstly search if it exists in the storage, if true return directly
             # if docPath!=None:
@@ -437,9 +449,11 @@ def get_process_service(request):
             rawXML=request.POST.get('xml',0)
         
         # update: using post method to access describeProcess
-        # if ("wps:DescribeProcess" in rawXML.lower()):
-        #     curParamsDir = parser.retrieve_attr(rawXML, "Execute")
-        #     identifier= curParamsDir["identifier"]
+        if ("wps:DescribeProcess" in rawXML.lower()):
+            curParamsDir = parser.retrieve_attr(rawXML, "Execute")
+            identifier= curParamsDir["identifier"]
+            docStr=get_DescribeProcess_response(identifiers)
+            return HttpResponse(docStr, "text/xml")
 
 
         curParamsDir = parser.retrieve_attr(rawXML, "Execute")
