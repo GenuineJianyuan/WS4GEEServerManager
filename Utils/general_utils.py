@@ -13,9 +13,7 @@ def getuuid12():
 def getuuid():
     return str(uuid.uuid4())
 
-# Currently just mention about a simple 
-def split_time_by_month(start,end):
-    def lastDayInMonth(year,month):
+def lastDayInMonth(year,month):
         if month in [1,3,5,7,8,10,12]:
             return 31
         elif month in [4,6,9,11]:
@@ -26,14 +24,14 @@ def split_time_by_month(start,end):
             else:
                 return 28
 
-
+def split_time_by_month(start,end):
     fmt_list =start.split("-")
     start_year,start_month,start_day=fmt_list[0],fmt_list[1],fmt_list[2]
     fmt_list2 =end.split("-")
     end_year,end_month,end_day=fmt_list2[0],fmt_list2[1],fmt_list2[2]
     periods=[]
     cur_year,cur_month,cur_day=start_year,start_month,start_day
-    while (int(cur_year)<=int(end_year)) and (int(cur_month)<=int(end_month)):
+    while (int(cur_year)<int(end_year)) or ((int(cur_year)==int(end_year)) and (int(cur_month)<=int(end_month))):
         period={}
         cur_lastday=-1
         period["start_year"],period["start_month"],period["start_day"]=cur_year,cur_month,cur_day
@@ -44,7 +42,7 @@ def split_time_by_month(start,end):
         period["end_year"],period["end_month"],period["end_day"]=cur_year,cur_month,cur_lastday
         periods.append(period)
         
-        if cur_month==12:
+        if cur_month==str(12):
             cur_day='01'
             cur_month='01' #next month
             cur_year=str(int(cur_year)+1)
@@ -56,6 +54,40 @@ def split_time_by_month(start,end):
 
     # get total months
     return periods
+
+def split_time_by_year(start,end):
+    fmt_list =start.split("-")
+    start_year,start_month,start_day=fmt_list[0],fmt_list[1],fmt_list[2]
+    fmt_list2 =end.split("-")
+    end_year,end_month,end_day=fmt_list2[0],fmt_list2[1],fmt_list2[2]
+    periods=[]
+    cur_year=start_year
+    while (int(cur_year)<=int(end_year)):
+        period={}
+        if (cur_year==start_year):
+            period["start_year"],period["start_month"],period["start_day"]=start_year,start_month,start_day
+            period["end_year"],period["end_month"],period["end_day"]=cur_year,'12','31'
+        elif (cur_year<end_year):
+            period["start_year"],period["start_month"],period["start_day"]=cur_year,'01','01'
+            period["end_year"],period["end_month"],period["end_day"]=cur_year,'12','31'
+        elif (cur_year==end_year):
+            period["start_year"],period["start_month"],period["start_day"]=end_year,'01','01'
+            period["end_year"],period["end_month"],period["end_day"]=end_year,end_month,end_day
+        cur_year=str(int(cur_year)+1)
+        periods.append(period)
+    return periods
+
+def split_time_by_custom(start,end):
+    fmt_list =start.split("-")
+    start_year,start_month,start_day=fmt_list[0],fmt_list[1],fmt_list[2]
+    fmt_list2 =end.split("-")
+    end_year,end_month,end_day=fmt_list2[0],fmt_list2[1],fmt_list2[2]
+    periods=[
+        {"start_year":start_year,"start_month":start_month,"start_day":start_day,
+        "end_year":end_year,"end_month":end_month,"end_day":end_day}
+    ]
+    return periods
+
 
 def readLocalFileToStr(file_path):
     if not os.path.isfile(file_path):

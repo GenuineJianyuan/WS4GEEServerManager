@@ -13,47 +13,8 @@ from Model.models import SearchRequest, DynamicWcs, DownloadingLog, Process, Pro
 import threading
 import json
 
-from WS4GEEServerManager.settings import BASE_DIR
+from WS4GEEServerManager.settings import BASE_DIR,PROJECT_ROOT_URL,File_ACCESS_PATH
 
-
-def test(request):
-    serviceType = request.POST.get('serviceType', 0)
-    datasetName = request.POST.get('datasetName', 0)
-    stackingMethod = request.POST.get('stackingMethod', 0)
-    start = request.POST.get('start', 0)
-    end = request.POST.get('end', 0)
-    options=str(request.POST.get('options', 0)).split(',')
-    dataAbstract = request.POST.get('dataAbstract', 0)
-    keywords = request.POST.get('keywords', 0)
-    uploadType = request.POST.get('uploadType', 0)
-    uploadBoundaryName=request.POST.get('uploadBoundaryName', 0)
-    uploadBoundaryContent = request.POST.get('uploadBoundaryContent', 0)
-    bands = request.POST.get('bands', 0)
-    noCloud,byYear,byMonth = 0,0,0
-    boundary,boundaryName='',uploadBoundaryName
-    if ('noCloud' in options):
-        noCloud=1
-    elif ('byMonth' in options):
-        byMonth=1
-    elif ('byYear' in options):
-        byYear=1
-    
-    if (int(uploadType)==2):
-        boundary=general_utils.readStrFromUrl(uploadBoundaryContent)
-    else:
-        boundary=general_utils.readLocalFileToStr(os.path.join(BASE_DIR, 'static',uploadBoundaryContent))
-
-    # print(serviceType,datasetName,stackingMethod,start,end,options,dataAbstract,keywords,uploadType,uploadBoundaryContent,bands)
-    return generate_dynamic_service(request)
-
-def test_service(request):
-    # rawXML=""
-    # if ((request.content_type!='application/x-www-form-urlencoded') & (request.content_type!='form-data')):
-    #     rawXML=request.body
-    # else:
-    #     rawXML=request.POST.get('xml',0)
-        
-    return get_process_service(request)
 
 def set_group_name(request):
     oldName=request.POST.get('groupName',0)
@@ -94,7 +55,7 @@ def get_boundary_files(request):
             return HttpResponse('ok')
 
 def get_xmlTemplate_list(request):
-    xmlList=["buffer.xml","FVC.xml"]
+    xmlList=["test_buffer.xml","test_FVC.xml"]
     responseDir = {}
     responseDir['code'] = 0
     responseDir['data'] = xmlList
@@ -104,7 +65,7 @@ def get_xmlTemplate(request):
     import time
     curId = request.GET.get("curId")
     docStr = general_utils.readLocalFileToStr(
-        os.path.join(BASE_DIR, 'static',curId))
+        os.path.join(BASE_DIR, 'static/testing template',curId))
     return HttpResponse(docStr, "text/xml")
 
 def register_wps(request):
@@ -169,7 +130,7 @@ def generate_dynamic_service(request):
     uploadBoundaryContent = request.POST.get('uploadBoundaryContent', 0)
     bandsName = request.POST.get('bands', 0) # e.g. B1;B2;B3
     
-    noCloud,byYear,byMonth = 0,0,0
+    noCloud,byYear,byMonth,byCustom = 0,0,0,0
 
     boundary,boundaryName='',uploadBoundaryName
     if ('noCloud' in options):
@@ -178,6 +139,8 @@ def generate_dynamic_service(request):
         byMonth=1
     if ('byYear' in options):
         byYear=1
+    if ('byCustom' in options):
+        byCustom=1
     if (int(uploadType)==2):
         boundary=general_utils.readStrFromUrl(uploadBoundaryContent)
     else:
@@ -202,22 +165,24 @@ def generate_dynamic_service(request):
 
     if (serviceType == 'WCS'):
         WCSNames = []
+        periods=[]
         if int(byMonth) == 1:  # generate by month
             periods = general_utils.split_time_by_month(start, end)
-            # bandsName = str(bands).replace('[', '').replace(
-            #     ']', '').replace(',', '').replace('\'', "")
-            bandsName=str(bandsName).replace(';', '_')
-            for period in periods:
-                # store each dynamic WCS,record requestUuid and this Uuid, start, end, method (mean, max or min)
-                curWCSUuid = general_utils.matchDatasetName(datasetName)+'_'+boundaryName+'_'+period['start_year']+period['start_month']+period[
-                    'start_day']+'_'+period['end_year']+period['end_month']+period['end_day']+'_'+bandsName+'_'+general_utils.getuuid12()
-                WCSNames.append(curWCSUuid)
-                newDynamicWcs = DynamicWcs(uuid=curWCSUuid, req_uuid=requestUuid,
-                                           start=period['start_year']+'-' +
-                                           period['start_month'] +
-                                           '-'+period['start_day'],
-                                           end=period['end_year']+'-'+period['end_month']+'-'+period['end_day'])
-                newDynamicWcs.save()
+        elif int(byYear)==1:
+            periods=general_utils.split_time_by_year(start,end)
+        elif int(byCustom)==1:
+            periods=general_utils.split_time_by_custom(start,end)
+
+        bandsName=str(bandsName).replace(';', '_')
+        for period in periods:
+            # store each dynamic WCS,record requestUuid and this Uuid, start, end, method (mean, max or min)
+            curWCSUuid = general_utils.matchDatasetName(datasetName)+'_'+boundaryName+'_'+period['start_year']+period['start_month']+period[
+                'start_day']+'_'+period['end_year']+period['end_month']+period['end_day']+'_'+bandsName+'_'+general_utils.getuuid12()
+            WCSNames.append(curWCSUuid)
+            startTime,endTime=period['start_year']+'-' +period['start_month'] +'-'+period['start_day'],period['end_year']+'-'+period['end_month']+'-'+period['end_day']
+            newDynamicWcs = DynamicWcs(uuid=curWCSUuid, req_uuid=requestUuid, start=startTime, end=endTime)
+            newDynamicWcs.save()
+
         responseDir = {}
         responseDir['code'] = 0
         responseDir['data'] = {}
@@ -268,11 +233,10 @@ def get_coverage_service(request, dataset, type):
                 content["serviceIdentification"]["serviceTypeVersion"] = version
                 content["serviceProvider"] = {}
                 content["serviceProvider"]["providerName"] = "WS4GEE"
-                content["serviceProvider"]["providerSite"] = "http://127.0.0.1:8000"
+                content["serviceProvider"]["providerSite"] = PROJECT_ROOT_URL
                 content["operationsMetadata"] = {}
-                content["operationsMetadata"]["url"] = "http://127.0.0.1:8000"+"/test/wcs?"
-                content["operationsMetadata"]["operationName"] = [
-                    "GetCapabilities", "DescribeCoverage", "GetCoverage"]
+                content["operationsMetadata"]["url"] = PROJECT_ROOT_URL+"/ws4gee/wcs?"
+                content["operationsMetadata"]["operationName"] = ["GetCapabilities", "DescribeCoverage", "GetCoverage"]
                 content["Contents"] = []
                 for curWCS in curWCSs:
                     curCoverageSummary = {}
@@ -346,8 +310,7 @@ def get_coverage_service(request, dataset, type):
                 content['minimumValue'] = "-Infinity"
                 content['maximumValue'] = "Infinity"
             content["availableBands"] = eval(curSearchRequest.bands)
-            docStr = generator.generate_service_description(
-                'DescribeCoverage', content, 'WCS')
+            docStr = generator.generate_service_description('DescribeCoverage', content, 'WCS')
 
     if request.method == 'POST':
         rawXML=""
@@ -364,23 +327,21 @@ def get_coverage_service(request, dataset, type):
             content = {}
             content["title"] = params["identifier"]
             content['abstract'] = "Generated from GEE. Please see check the status in the url: {0} . Then download after the generation completes.".format(
-                "http://127.0.0.1:8000/status/"+tempImageName)
+                PROJECT_ROOT_URL+"/status/"+tempImageName)
             content['identifier'] = params["identifier"]
             minX, minY, maxX, maxY = float(params['lowerCorner'][0]), float(
                 params['lowerCorner'][1]), float(params['upperCorner'][0]), float(params['upperCorner'][1])
 
             curWCS = DynamicWcs.objects.get(uuid=params["identifier"])
             curSearchRequest = SearchRequest.objects.get(uuid=curWCS.req_uuid)
-            content['resultUrl'] = "http://127.0.0.1:8080/examples/temp/" + \
-                tempImageName+".tif"
+            content['resultUrl'] = File_ACCESS_PATH +  tempImageName+".tif"
             docStr = generator.generate_service_outcome("GetCoverage", content)
 
             # current  the resolution was set initially
             def func():
                 curImage = gee_utils.getTargetImage(general_utils.matchDatasetSnippetName(curSearchRequest.dataset_name), curWCS.start,
                                                     curWCS.end, curSearchRequest.boundary, curSearchRequest.bands, curSearchRequest.stacking_method, curSearchRequest.no_cloud)
-                gee_utils.generateUrlForTargetImage(
-                    256, curImage, tempImageName, minX, minY, maxX, maxY)
+                gee_utils.generateUrlForTargetImage(256, curImage, tempImageName, minX, minY, maxX, maxY)
             thread = threading.Thread(target=func)
             thread.start()
             return HttpResponse(docStr, "text/xml")
@@ -401,11 +362,10 @@ def get_process_service(request):
             content["serviceIdentification"]["abstract"] = "Services generated by WS4GEE from google earth engine"
             content["serviceProvider"] = {}
             content["serviceProvider"]["providerName"] = "WS4GEE"
-            content["serviceProvider"]["providerSite"] = "http://127.0.0.1:8000"
+            content["serviceProvider"]["providerSite"] = PROJECT_ROOT_URL
             content["operationsMetadata"] = {}
-            content["operationsMetadata"]["url"] = "http://127.0.0.1:8000"+"/test/wps"
-            content["operationsMetadata"]["operationName"] = [
-                "GetCapabilities", "DescribeProcess", "Execute"]
+            content["operationsMetadata"]["url"] = PROJECT_ROOT_URL+"/ws4gee/wps"
+            content["operationsMetadata"]["operationName"] = ["GetCapabilities", "DescribeProcess", "Execute"]
             content["processes"] = []
             curProcesses = Process.objects.all()
             for process in curProcesses:
@@ -649,7 +609,7 @@ def get_file(request):
         fileName='Tutorial for WS4GEEClient.docx'
     elif (file=='instruction'):
         fileName="WS4GEEServer Instruction.docx"
-    filePath=os.path.join(BASE_DIR,'static',fileName)
+    filePath=os.path.join(BASE_DIR,'static/tutorial',fileName)
     response=StreamingHttpResponse(read_file(filePath))
     response["Content-Type"]="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     response["Content-Disposition"]="attachment; filename={0}".format(fileName)
@@ -666,7 +626,7 @@ def get_zip_file(request):
                     yield c
                 else:
                     break
-    filePath=os.path.join(BASE_DIR,'static',"Experiment Data.zip")
+    filePath=os.path.join(BASE_DIR,'static/tutorial',"Experiment Data.zip")
     response=StreamingHttpResponse(read_file(filePath))
     response["Content-Type"]="application/x-zip-compressed"
     response["Content-Disposition"]="attachment; filename={0}".format("Experiment Data.zip")

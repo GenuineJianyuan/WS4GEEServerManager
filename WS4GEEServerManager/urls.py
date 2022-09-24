@@ -19,7 +19,6 @@ from Model import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('test/', views.test),
     path('generate',views.generate_dynamic_service),
     path('ows/<str:dataset>/<str:type>',views.get_coverage_service),
     path('ws4gee/wps',views.get_process_service),
@@ -32,7 +31,6 @@ urlpatterns = [
     path('ws4gee/boundaryFiles/',views.get_boundary_files),
     path('ws4gee/files/',views.get_files),
     path('ws4gee/register',views.register_wps),
-    path('ws4gee/test',views.test_service),
     path('ws4gee/setGroupName',views.set_group_name),
     path('ws4gee/generateCoverageRequest',views.generate_coverage_request),
     path('ws4gee/tutorial',views.get_file),

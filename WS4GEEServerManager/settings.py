@@ -14,7 +14,9 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+PROJECT_ROOT_URL="http://43.154.247.161:8000"  #DJANGO Project root url
+FILE_SAVE_PATH="C:\\Users\\Administrator\\Desktop\\apache-tomcat-9.0.45\\webapps\\examples\\temp"  # define the cache for the downloaded vector/raster
+File_ACCESS_PATH="http://43.154.247.161:8080/examples/temp/"  # according to the FILE_SAVE_PATH, define the root url for the file
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
