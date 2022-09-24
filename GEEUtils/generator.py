@@ -114,7 +114,7 @@ def generateGetCapabilitiesResponse(requestType,content):
 
         #service provider
         provideName=setText(doc.createElement('ows:providerName'),content["serviceProvider"]["providerName"])
-        provideSite=setText(doc.createElement('ows:providerName'),content["serviceProvider"]["providerSite"])
+        provideSite=setText(doc.createElement('ows:providerSite'),content["serviceProvider"]["providerSite"])
         setElements(serviceProvider,[provideName,provideSite])
 
         

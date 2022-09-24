@@ -59,7 +59,7 @@ def get_boundary_files(request):
             return HttpResponse('ok')
 
 def get_xmlTemplate_list(request):
-    xmlList=["test_buffer.xml","test_FVC.xml","test_raster_add.xml"]
+    xmlList=["GetCapabilities.xml","DescribeProcess.xml","test_buffer.xml","test_FVC.xml","test_raster_add.xml"]
     responseDir = {}
     responseDir['code'] = 0
     responseDir['data'] = xmlList
@@ -353,11 +353,48 @@ def get_coverage_service(request, dataset, type):
 
 # Generate WPS 1.0 services
 def get_process_service(request):
+    def get_DescribeProcess_response(identifiers):
+        for identifier in identifiers:
+            curContent = {}
+            curProcess = Process.objects.get(name=identifier)
+            curContent["identifier"] = curProcess.name
+            curContent["title"] = curProcess.title
+            if (curProcess.abstract is not None):
+                curContent["abstract"] = curProcess.abstract
+            curParams = ProcessParams.objects.filter(
+                process_uuid=curProcess.uuid).order_by('order')
+            params = []
+            for curParam in curParams:
+                paramDict = {}
+                paramDict["identifier"] = curParam.param_name
+                paramDict["title"] = curParam.title
+                paramDict["paramType"] = curParam.param_type
+                paramDict["dataType"] = curParam.data_type
+                if (paramDict["paramType"]=='input'):
+                    paramDict["minOccurs"] = int(curParam.min_occurs)
+                    paramDict["maxOccurs"] = int(curParam.max_occurs)
+                if (curParam.value_type == 2):    # 1:any_value;2:allowed_value;3:others
+                    paramDict["allowedValue"] = str(
+                        curParam.allowed_value).split(';')
+                elif (curParam.value_type == 1):
+                    paramDict["anyValue"] = curParam.any_value
+                if (curParam.default_value is not None):
+                    paramDict["defaultValue"] = curParam.default_value
+                if (curParam.abstract is not None):
+                    paramDict["abstract"] = curParam.abstract
+                params.append(paramDict)
+            curContent["params"] = params
+            content.append(curContent)
+        response = generator.generate_service_description(
+                "DescribeProcess", content)
+        return response
+
+
     docStr = ""
     if request.method == 'GET':
         requestType = request.GET.get('request')
         # WPS GetCapabilities
-        if (requestType == 'GetCapabilities'):
+        if (requestType.lower() == 'getcapabilities'):
             content = {}
             content["serviceIdentification"] = {}
             content["serviceIdentification"]["serviceType"] = "WPS"
@@ -388,48 +425,23 @@ def get_process_service(request):
             #     doc= general_utils.readLocalFileToStr(docPath)
             #     return HttpResponse(doc,content_type='text/xml')
             # else:   # a new request
-            for identifier in identifiers:
-                curContent = {}
-                curProcess = Process.objects.get(name=identifier)
-                curContent["identifier"] = curProcess.name
-                curContent["title"] = curProcess.title
-                if (curProcess.abstract is not None):
-                    curContent["abstract"] = curProcess.abstract
-                curParams = ProcessParams.objects.filter(
-                    process_uuid=curProcess.uuid).order_by('order')
-                params = []
-                for curParam in curParams:
-                    paramDict = {}
-                    paramDict["identifier"] = curParam.param_name
-                    paramDict["title"] = curParam.title
-                    paramDict["paramType"] = curParam.param_type
-                    paramDict["dataType"] = curParam.data_type
-                    if (paramDict["paramType"]=='input'):
-                        paramDict["minOccurs"] = int(curParam.min_occurs)
-                        paramDict["maxOccurs"] = int(curParam.max_occurs)
-                    if (curParam.value_type == 2):    # 1:any_value;2:allowed_value;3:others
-                        paramDict["allowedValue"] = str(
-                            curParam.allowed_value).split(';')
-                    elif (curParam.value_type == 1):
-                        paramDict["anyValue"] = curParam.any_value
-                    if (curParam.default_value is not None):
-                        paramDict["defaultValue"] = curParam.default_value
-                    if (curParam.abstract is not None):
-                        paramDict["abstract"] = curParam.abstract
-                    params.append(paramDict)
-                curContent["params"] = params
-                content.append(curContent)
-            docStr = generator.generate_service_description(
-                "DescribeProcess", content)
+            docStr=get_DescribeProcess_response(identifiers)
             return HttpResponse(docStr, "text/xml")
         return
-    # POST is for the Execute operation
+    # POST is for the Execute operation; however, actually getcapabilities/describeprocess can also be access by POST method
     if request.method == 'POST':
         rawXML=""
         if ((request.content_type!='application/x-www-form-urlencoded') & (request.content_type!='form-data')):
             rawXML=request.body
         else:
             rawXML=request.POST.get('xml',0)
+        
+        # update: using post method to access describeProcess
+        # if ("wps:DescribeProcess" in rawXML.lower()):
+        #     curParamsDir = parser.retrieve_attr(rawXML, "Execute")
+        #     identifier= curParamsDir["identifier"]
+
+
         curParamsDir = parser.retrieve_attr(rawXML, "Execute")
         if ('error' in curParamsDir.keys()):
             return HttpResponse(curParamsDir['error'])

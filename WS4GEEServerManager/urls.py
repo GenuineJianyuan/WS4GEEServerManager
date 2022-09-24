@@ -19,7 +19,6 @@ from Model import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('test',views.test),
     path('generate',views.generate_dynamic_service),
     path('ows/<str:dataset>/<str:type>',views.get_coverage_service),
     path('ws4gee/wps',views.get_process_service),

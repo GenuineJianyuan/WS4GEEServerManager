@@ -53,14 +53,8 @@ def retrieve_attr(rawData,method):
             curOutputParam["mimeType"]=output.getAttribute("mimeType")
             curOutputParam["identifier"]=output.getElementsByTagName('ows:Identifier')[0].firstChild.data
             variables.append(curOutputParam)
-
-        # outputs=root.getElementsByTagName('wps:RawDataOutput')
-        # for output in outputs:
-        #     curOutputParam={}
-        #     curOutputParam["mimeType"]=output.getAttribute("mimeType")
-        #     curOutputParam["identifier"]=output.getElementsByTagName('ows:Identifier')[0].firstChild.data
-        #     variables.append(curOutputParam)
-        
+    elif (method=="DescribeProcess"):
+        identifier=root.getElementsByTagName('ows:Identifier')[0].firstChild.data
     params={"identifier":identifier,"variables":variables}
     return params
 
