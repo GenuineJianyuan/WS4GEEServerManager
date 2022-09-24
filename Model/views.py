@@ -450,7 +450,7 @@ def get_process_service(request):
         
         # update: using post method to access describeProcess
         if ("wps:describeprocess" in rawXML.lower()):
-            curParamsDir = parser.retrieve_attr(rawXML, "Execute")
+            curParamsDir = parser.retrieve_attr(rawXML, "DescribeProcess")
             identifier= curParamsDir["identifier"]
             docStr=get_DescribeProcess_response(identifiers)
             return HttpResponse(docStr, "text/xml")
