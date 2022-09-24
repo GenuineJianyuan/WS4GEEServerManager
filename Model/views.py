@@ -358,7 +358,8 @@ def get_process_service(request):
                 identifiers=get_all_identifiers_list()
         else:
             identifiers = str(request.GET.get('identifier')).split(';')
-            
+        content = []
+    
         for identifier in identifiers:
             curContent = {}
             curProcess = Process.objects.get(name=identifier)
@@ -428,7 +429,6 @@ def get_process_service(request):
             return HttpResponse(docStr, "text/xml")
         # WPS DescribeProcess
         elif (requestType == 'DescribeProcess'):
-            content = []
             identifiers=str(request.GET.get('identifier'))
             
             docPath = None
