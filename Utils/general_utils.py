@@ -182,3 +182,4 @@ def readFileFromUrl(url,filename,savePath):
     curFile=requests.get(url)
     finalPath=os.path.join(savePath,filename)
     open(finalPath,'wb').write(curFile.content)
+    print("Success to upload file {0} to path:{1}".format(filename,savePath+filename))
