@@ -402,11 +402,7 @@ def get_process_service(request):
             identifier_list.append(process.name)
         return identifier_list
 
-    docStr = ""
-    if request.method == 'GET':
-        requestType = request.GET.get('request')
-        # WPS GetCapabilities
-        if (requestType.lower() == 'getcapabilities'):
+    def get_Capabilities_response():
             content = {}
             content["serviceIdentification"] = {}
             content["serviceIdentification"]["serviceType"] = "WPS"
@@ -426,11 +422,18 @@ def get_process_service(request):
                     {"identifier": process.name, "title": process.title})
             docStr = generator.generate_service_description(
                 "GetCapabilities", content, "WPS")
+            return docStr
+
+    docStr = ""
+    if request.method == 'GET':
+        requestType = request.GET.get('request')
+        # WPS GetCapabilities
+        if (requestType.lower() == 'getcapabilities'):
+            docStr=get_Capabilities_response()
             return HttpResponse(docStr, "text/xml")
         # WPS DescribeProcess
         elif (requestType == 'DescribeProcess'):
             identifiers=str(request.GET.get('identifier'))
-            
             docPath = None
             # Firstly search if it exists in the storage, if true return directly
             # if docPath!=None:
@@ -454,7 +457,9 @@ def get_process_service(request):
             identifiers= curParamsDir["identifier"]
             docStr=get_DescribeProcess_response(identifiers)
             return HttpResponse(docStr, "text/xml")
-
+        if ("wps:getcapabilities" in rawXML.lower()):
+            docStr=get_Capabilities_response()
+            return HttpResponse(docStr, "text/xml")
 
         # otherwise this request is for "Execute"
         curParamsDir = parser.retrieve_attr(rawXML, "Execute")
