@@ -179,6 +179,7 @@ def readStrFromUrl(url):
     return content.text
 
 def readFileFromUrl(url,filename,savePath):
+    print("Download file from URL:{0}".format(url))
     curFile=requests.get(url)
     finalPath=os.path.join(savePath,filename)
     open(finalPath,'wb').write(curFile.content)

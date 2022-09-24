@@ -74,7 +74,7 @@ def convert_to_ee_image():
 def convert_by_ee_cloud(url,type="tiff"):
     if (type=='tiff'):
         fileName=general_utils.getuuid12()+".tif"
-        savePath=os.path.join(BASE_DIR,'temp')
+        savePath=os.path.join(BASE_DIR,'static','temp')
         saveAbsPath=os.path.join(savePath,fileName)
         general_utils.readFileFromUrl(url,fileName,savePath)
         eeCloudPath=gee_utils.upload_blob("image_bucket_leismars",saveAbsPath,fileName)
@@ -84,7 +84,7 @@ def convert_by_ee_cloud(url,type="tiff"):
 def convert_by_ee_cloud_test(url,type="tiff"):
     if (type=='tiff'):
         fileName=general_utils.getuuid12()+".tif"
-        savePath=os.path.join(BASE_DIR,'temp')
+        savePath=os.path.join(BASE_DIR,'temp',,'temp')
         saveAbsPath=os.path.join(savePath,fileName)
         general_utils.readFileFromUrl(url,fileName,savePath)
         eeCloudPath=gee_utils.upload_blob("image_bucket_leismars",saveAbsPath,fileName)
