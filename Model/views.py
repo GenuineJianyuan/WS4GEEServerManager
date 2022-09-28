@@ -597,7 +597,7 @@ def get_WCS_List(request):
         tempDir['type']='WCS'
         tempDir['group']=curGroup.generate_name
         tempDir['groupId']=curGroup.uuid
-        tempDir['abstract']='test abstract'
+        tempDir['abstract']=curGroup.abstract
         serviceList.append(tempDir)
     responseDir = {}
     responseDir['code'] = 0
