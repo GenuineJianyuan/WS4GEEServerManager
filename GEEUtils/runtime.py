@@ -1,5 +1,5 @@
 import ee
-import os,json
+import os
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS']='C:\\Users\\Administrator\\Desktop\\GEE_Project\\sturdy-now-326804-c9a4b9d204cf.json'
 

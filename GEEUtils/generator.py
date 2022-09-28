@@ -6,13 +6,6 @@ from xml.dom.minidom import Document
 import time
 from WS4GEEServerManager.settings import PROJECT_ROOT_URL
 
-# def test(request):
-#     curSearchRequest=SearchRequest.objects.get(uuid='492fdd01-a6b6-4fa6-aca2-25a1235a35e9')
-    
-#     # geojsonData=curSearchRequest.boundary
-#     # print(getBoundary(geojsonData))
-#     return HttpResponse("Success")
-
 def generateGetCapabilitiesResponse(requestType,content):
     doc = Document() 
     docStr=""
@@ -37,7 +30,7 @@ def generateGetCapabilitiesResponse(requestType,content):
 
         #service identification
         title=setText(doc.createElement('ows:Title'),content['serviceIdentification']["title"])
-        keywords=setTexts(doc.createElement("ows:Keywords"),'ows:Keyword',['WCS','WS4GEE']) ##!!!@!!
+        keywords=setTexts(doc.createElement("ows:Keywords"),'ows:Keyword',['WCS','WS4GEE']) 
         serviceType=setText(doc.createElement('ows:ServiceType'),content['serviceIdentification']["serviceType"])
         serviceTypeVersion=setText(doc.createElement('ows:ServiceTypeVersion'),content['serviceIdentification']["serviceTypeVersion"])
         fees=setText(doc.createElement('ows:Fees'),'NONE')

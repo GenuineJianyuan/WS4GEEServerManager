@@ -1,24 +1,13 @@
 
 from email.policy import default
 
-# from urllib.error import HTTPError
-# from django.core.checks.messages import Error
-
 from django.http import HttpResponse
-import sys
-import os
+import os,threading,json
 from Utils import general_utils
 from GEEUtils import gee_utils, generator, parser
-from Model.models import SearchRequest, DynamicWcs, DownloadingLog, Process, ProcessParams, ParamRecord, ParamRequest, ExecuteStatusRecord
-import threading
-import json
+from Model.models import SearchRequest, DynamicWcs, DownloadingLog, Process, ProcessParams,ExecuteStatusRecord
 
 from WS4GEEServerManager.settings import BASE_DIR,PROJECT_ROOT_URL,File_ACCESS_PATH
-
-def test(request):
-    url="http://43.154.247.161:8080/examples/temp/test.tif"
-    result=parser.convert_by_ee_cloud_test(url, "tiff")
-    return HttpResponse(result)
 
 def set_group_name(request):
     oldName=request.POST.get('groupName',0)
@@ -36,8 +25,7 @@ def get_files(request):
                 myFile = request.FILES[i]
             if myFile:
                 dir = os.path.join(BASE_DIR, 'GEEScriptTemplates')
-                destination = open(os.path.join(dir, myFile.name),
-                                   'wb+')
+                destination = open(os.path.join(dir, myFile.name),'wb+')
                 for chunk in myFile.chunks():
                     destination.write(chunk)
                 destination.close()
@@ -152,8 +140,6 @@ def generate_dynamic_service(request):
 
     bands=str(bandsName).split(';') 
     keywords=str(keywords).split(';')
-    print(dataAbstract)
-    # datasetInfo=""
     datasetInfo = gee_utils.getTargetDatasetInfo(
         general_utils.matchDatasetSnippetName(datasetName), start, end, boundary)
     envelope=gee_utils.getBoundaryBox(boundary)

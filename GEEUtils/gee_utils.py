@@ -48,11 +48,6 @@ def getTargetDatasetInfo(datasetName,start,end,geojsonData):
     dataset = ee.ImageCollection(datasetName).filterDate(start, end).filterBounds(features)
     return dataset.getInfo()
 
-# def generateTargetDatasetInfo(datasetName,start,end,boundaryData):
-#     features= json.loads(boundaryData)
-#     dataset = ee.ImageCollection(datasetName).filterDate(start, end).filterBounds(features)
-#     return dataset.getInfo()
-
 def getTargetImage(datasetName,start,end,geojsonData,bands='All',method='mean',no_cloud=1):
     geojson=json.loads(geojsonData)
     features=None
@@ -74,7 +69,6 @@ def getTargetImage(datasetName,start,end,geojsonData,bands='All',method='mean',n
         out_image=ee.Image(dataset.max()).clip(features)
     if bands!='All':
         curBands=(eval(bands))
-        # print(ee.Image(out_image).getInfo())
         out_image=ee.Image(out_image).select(curBands)
     return out_image
 
@@ -92,8 +86,6 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     #     # destination_blob_name = "storage-object-name"
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
-    #     buckets = list(storage_client.list_buckets())
-    #     print(buckets)
     blob = bucket.blob(destination_blob_name)
     blob.upload_from_filename(source_file_name)
     print(
@@ -146,7 +138,6 @@ def export_gee_image(image,name,scale,region):
     task.start()
     state=""
     while state!='COMPLETED':
-        # print(task.status())
         curLog=DownloadingLog(uuid=general_utils.getuuid12(),image_uuid=name,status=state)
         curLog.save()
         state=task.status()['state']
